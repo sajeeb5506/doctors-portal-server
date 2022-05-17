@@ -18,6 +18,7 @@ async function run(){
 try{
     await client.connect();
     const servicesCollection = client.db("doctors_portal").collection("services");
+    const bookingCollection = client.db("doctors_portal").collection("booking");
    //find 
    app.get('/service',async(req,res)=>{
        const query = {};
@@ -25,6 +26,18 @@ try{
        const service = await cursor.toArray();
        res.send(service);
    })
+
+  //  booking
+  app.post('/booking',async(req,res)=>{
+    const booking = req.body;
+    const query = {treatment: booking.treatment ,date:booking.date, patient:booking.patient}
+    const exists = await bookingCollection.findOne(query);
+    if(exists){
+      return res.send({success:false,booking:exists})
+    }
+    const result = await bookingCollection.insertOne(booking);
+    res.send({success:true, result});
+  })
 
 }
 finally{
